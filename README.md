@@ -34,3 +34,8 @@ Support desk. Decision records: whoever signed them.
 ---
 
 Exported 2026-10-04 from the `support` repo, `apps/kb/` → `src/`.
+
+## Build
+
+Node comes from mise (`mise.toml`). `npm install`, then `npm run build` prerenders every page to
+`build/`. `npm run preview` serves it.
