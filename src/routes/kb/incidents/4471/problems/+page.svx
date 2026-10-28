@@ -1,0 +1,64 @@
+---
+layout: runbook
+title: '#4471 · three problems, not one'
+owner: Bastian Koetsier
+status: open
+reviewed: 2026-10-28
+signature: Bastian Koetsier
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const issues = {
+    parser: 'https://github.com/bastiankoetsier/mega-what-it-shows/issues/1',
+    hint: 'https://github.com/bastiankoetsier/mega-what-it-shows/issues/2',
+    'one-day-move': 'https://github.com/bastiankoetsier/mega-what-it-shows/issues/3',
+  };
+</script>
+
+[#4471](/kb/incidents/4471) says one issue, one fix queued. The reports merged into it describe
+three different problems. Fixing the parser closes only the first; the other two keep coming in
+under the same subjects.
+
+<ProblemTable ticket={4471} {issues} />
+
+<Callout kind="warn">
+The queued parser fix does not touch <code>hint</code> or <code>one-day-move</code>. Each has its own
+ticket now. Keep #4471 for <code>parser</code> only.
+</Callout>
+
+## The three problems
+
+**`parser`: day-first dates read month first.** The shared parser reads every date month first.
+For a tenant whose locale writes the day first, day and month swap: 6 May becomes 5 June. Every
+channel, every tenant on file.
+
+**`hint`: booking-v3 tells people to type month first.** booking-v3 prints `MM/DD/YYYY` under
+its date field, and then reads the date the tenant's way, day first. People type what the hint
+says. Only the form channel, only the tenants that run booking-v3. The parser fix leaves it as is.
+
+**`one-day-move`: the date moves by one day.** These reports are not a swap: the date lands one
+day early or late, or two people at the same meeting get different days ("Client in Lisbon got
+Tuesday. Client in Toronto got Monday."). The desk already read them that way
+(`desk-notes.json`), and the #4471 page still files them under `parser` by tenant. A day/month
+swap cannot move a date by one day, so this is a time zone or day-boundary bug.
+
+## How the merge hid them
+
+- [Decision 0001](/kb/decisions/0001-dedupe-by-subject) merges on subject line alone. The same
+  subjects come in for all three problems, so all three ended in one ticket. The cause depends on
+  the tenant and the way in (`causes.ts`), not on the subject.
+- Intake's tag is a guess from the reporter's browser and disagrees with the tenant's cause in
+  both directions. The table counts by cause, not by tag.
+- The ticket export overlaps between pages, so some reports come twice. Each id is counted once.
+
+## What to change
+
+- Engineering: one fix per ticket above. The `hint` fix is in booking-v3's date hint, not in the parser.
+- Desk: a new decision record that merges on cause (tenant, form, channel) instead of subject.
+  0001 stays as it is; the new record replaces it.
+
+<RenderStamp {signature} />
