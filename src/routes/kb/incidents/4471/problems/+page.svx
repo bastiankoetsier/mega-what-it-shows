@@ -12,39 +12,41 @@ signature: Bastian Koetsier
   import Callout from '#lib/kb/Callout.svelte';
   import RenderStamp from '#lib/kb/RenderStamp.svelte';
 
+  const repo = 'https://github.com/bastiankoetsier/mega-what-it-shows/issues';
   const issues = {
-    parser: 'https://github.com/bastiankoetsier/mega-what-it-shows/issues/1',
-    hint: 'https://github.com/bastiankoetsier/mega-what-it-shows/issues/2',
-    'one-day-move': 'https://github.com/bastiankoetsier/mega-what-it-shows/issues/3',
+    parser: { url: `${repo}/1`, state: 'fixed' },
+    hint: { url: `${repo}/2`, state: "won't fix" },
+    'one-day-move': { url: `${repo}/3`, state: 'open' },
   };
 </script>
 
-[#4471](/kb/incidents/4471) says one issue, one fix queued. The reports merged into it describe
-three different problems. Fixing the parser closes only the first; the other two keep coming in
-under the same subjects.
+[#4471](/kb/incidents/4471) merged every date report into one issue. The reports describe three
+different problems. Engineering closed #4471 on 5 October: the parser is fixed, and booking-v3 is
+retired. The third problem is in neither change.
 
 <ProblemTable ticket={4471} {issues} />
 
 <Callout kind="warn">
-The queued parser fix does not touch <code>hint</code> or <code>one-day-move</code>. Each has its own
-ticket now. Keep #4471 for <code>parser</code> only.
+Dates that move by one day are still open. Neither the parser fix nor retiring booking-v3 touches
+them. Reports like these will keep coming in under the same subjects as before.
 </Callout>
 
 ## The three problems
 
-**`parser`: day-first dates read month first.** The shared parser reads every date month first.
-For a tenant whose locale writes the day first, day and month swap: 6 May becomes 5 June. Every
-channel, every tenant on file.
+**`parser`: day-first dates read month first. Fixed** (`fix(dates): parse dd/mm for eu locales`).
+The shared parser read every date month first. For a tenant whose locale writes the day first, day
+and month swapped: 6 May became 5 June. Every channel, every tenant on file.
 
-**`hint`: booking-v3 tells people to type month first.** booking-v3 prints `MM/DD/YYYY` under
-its date field, and then reads the date the tenant's way, day first. People type what the hint
-says. Only the form channel, only the tenants that run booking-v3. The parser fix leaves it as is.
+**`hint`: booking-v3 told people to type month first. Won't fix: booking-v3 is retired.** booking-v3
+printed `MM/DD/YYYY` under its date field and then read the date the tenant's way, day first. People
+typed what the hint said. Only the form channel, only the tenants that ran booking-v3. It was not a
+parser bug, so the parser fix would not have closed it.
 
-**`one-day-move`: the date moves by one day.** These reports are not a swap: the date lands one
-day early or late, or two people at the same meeting get different days ("Client in Lisbon got
-Tuesday. Client in Toronto got Monday."). The desk already read them that way
-(`desk-notes.json`), and the #4471 page still files them under `parser` by tenant. A day/month
-swap cannot move a date by one day, so this is a time zone or day-boundary bug.
+**`one-day-move`: the date moves by one day. Open.** These reports are not a swap: the date lands
+one day off, or two people at the same meeting get different days ("Client in Lisbon got Tuesday.
+Client in Toronto got Monday."). The desk already read them that way (`desk-notes.json`) and counts
+them under `parser` by tenant, so the table does too. A day/month swap cannot move a date by one
+day, so this looks like a time zone or day-boundary bug.
 
 ## How the merge hid them
 
@@ -57,7 +59,7 @@ swap cannot move a date by one day, so this is a time zone or day-boundary bug.
 
 ## What to change
 
-- Engineering: one fix per ticket above. The `hint` fix is in booking-v3's date hint, not in the parser.
+- Engineering: take the one-day moves as their own bug. Closing #4471 did not close them.
 - Desk: a new decision record that merges on cause (tenant, form, channel) instead of subject.
   0001 stays as it is; the new record replaces it.
 

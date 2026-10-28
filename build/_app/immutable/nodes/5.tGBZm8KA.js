@@ -1,0 +1,1 @@
+export{n as component}from"../chunks/CG1_GWD-.js";
