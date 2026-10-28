@@ -4,7 +4,7 @@ title: '#4471 · three problems, not one'
 owner: Bastian Koetsier
 status: open
 reviewed: 2026-10-28
-signature: Bastian Koetsier
+signature: 'v1.eyJzdWIiOiIxNjM3IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyMjI0ODEsImV4cCI6MTc5MzMwODg4MX0.OcCc46a0NznLVxvsu90S1gtCi22CXPmYnQGEI5fAQhM'
 ---
 
 <script>
